@@ -1,0 +1,9 @@
+source,destination,statusCode,matchType,enabled,queryPolicy,description
+/learn-craft,/,301,exact,1,preserve,Migrated legacy learning portal to homepage
+/plugins/senior-directory,/portfolio/senior-directory,301,exact,1,preserve,Legacy plugin showcase redirect
+/case-studies/manufacturing,/portfolio/senior-directory-2,301,exact,1,preserve,Manufacturing case study route
+^training/craft5/([a-zA-Z0-9_-]+)$,/portfolio/$1,301,regex,1,preserve,Legacy training module regex rule
+/black-friday,/?sale=bf2026,302,exact,1,preserve,Annual promotional campaign redirect
+/old-tutorials,/portfolio,301,exact,1,preserve,Old tutorials redirected to portfolio index
+/courses/craft-cms-mastery,/portfolio/senior-directory,301,exact,1,preserve,Mastery course link updated to plugin case study
+/store/shop-items,/shop,301,exact,1,preserve,Old store path redirected to shop template

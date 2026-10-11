@@ -33,35 +33,61 @@ class ImportExportController extends Controller
      */
     public function actionPreview(): Response
     {
-        $this->requirePostRequest();
         $this->requirePermission('seoRedirectManager:importExport');
 
-        $file = UploadedFile::getInstanceByName('csvFile');
-        if (!$file) {
-            $this->setFailFlash(Craft::t('seo-redirect-manager', 'Please select a CSV file to upload.'));
-            return $this->redirect('seo-redirect-manager/import-export');
+        $request = Craft::$app->getRequest();
+
+        if ($request->getIsPost()) {
+            $file = UploadedFile::getInstanceByName('csvFile');
+            if (!$file) {
+                $this->setFailFlash(Craft::t('seo-redirect-manager', 'Please select a CSV file to upload.'));
+                return $this->redirect('seo-redirect-manager/import-export');
+            }
+
+            $content = file_get_contents($file->tempName);
+            $siteId = $request->getBodyParam('siteId');
+            $siteId = $siteId !== '' && $siteId !== null ? (int)$siteId : null;
+
+            $parsed = SeoRedirectManager::getInstance()->csvImport->parseAndValidate($content, $siteId);
+
+            if (!$parsed['success']) {
+                $this->setFailFlash($parsed['message']);
+                return $this->redirect('seo-redirect-manager/import-export');
+            }
+
+            $conflictPolicy = $request->getBodyParam('conflictPolicy', 'skip');
+            $filename = $file->name;
+
+            // Cache in user session
+            Craft::$app->getSession()->set('seo_redirect_csv_preview_parsed', $parsed);
+            Craft::$app->getSession()->set('seo_redirect_csv_preview_rows', $parsed['rows']);
+            Craft::$app->getSession()->set('seo_redirect_csv_preview_site_id', $siteId);
+            Craft::$app->getSession()->set('seo_redirect_csv_preview_conflict_policy', $conflictPolicy);
+            Craft::$app->getSession()->set('seo_redirect_csv_preview_filename', $filename);
+        } else {
+            // GET request (e.g. browser refresh)
+            $parsed = Craft::$app->getSession()->get('seo_redirect_csv_preview_parsed');
+            $siteId = Craft::$app->getSession()->get('seo_redirect_csv_preview_site_id');
+            $conflictPolicy = Craft::$app->getSession()->get('seo_redirect_csv_preview_conflict_policy', 'skip');
+            $filename = Craft::$app->getSession()->get('seo_redirect_csv_preview_filename', 'uploaded.csv');
+
+            if (!$parsed || empty($parsed['rows'])) {
+                $this->setFailFlash(Craft::t('seo-redirect-manager', 'No CSV preview session found. Please upload a file.'));
+                return $this->redirect('seo-redirect-manager/import-export');
+            }
         }
-
-        $content = file_get_contents($file->tempName);
-        $siteId = Craft::$app->getRequest()->getBodyParam('siteId');
-        $siteId = $siteId !== '' && $siteId !== null ? (int)$siteId : null;
-
-        $parsed = SeoRedirectManager::getInstance()->csvImport->parseAndValidate($content, $siteId);
-
-        if (!$parsed['success']) {
-            $this->setFailFlash($parsed['message']);
-            return $this->redirect('seo-redirect-manager/import-export');
-        }
-
-        // Cache raw rows in user session for execution step
-        Craft::$app->getSession()->set('seo_redirect_csv_preview_rows', $parsed['rows']);
-        Craft::$app->getSession()->set('seo_redirect_csv_preview_site_id', $siteId);
 
         return $this->renderTemplate('seo-redirect-manager/import-export/preview', [
             'parsed' => $parsed,
-            'filename' => $file->name,
+            'preview' => $parsed['rows'],
+            'rows' => $parsed['rows'],
+            'total' => $parsed['totalRows'],
+            'validCount' => $parsed['validRows'],
+            'invalidCount' => $parsed['errorRows'],
+            'duplicateCount' => $parsed['duplicateRows'],
+            'filename' => $filename,
             'siteId' => $siteId,
-            'conflictPolicy' => Craft::$app->getRequest()->getBodyParam('conflictPolicy', 'skip'),
+            'conflictPolicy' => $conflictPolicy,
         ]);
     }
 

@@ -21,7 +21,7 @@ class AuditController extends Controller
 
         $request = Craft::$app->getRequest();
         $search = $request->getQueryParam('search', '');
-        $actionFilter = $request->getQueryParam('action', $request->getQueryParam('actionFilter', ''));
+        $actionFilter = $request->getQueryParam('auditAction', $request->getQueryParam('actionFilter', ''));
         $recordType = $request->getQueryParam('recordType', '');
         $page = max(1, (int)$request->getQueryParam('page', 1));
         $limit = 25;
@@ -45,6 +45,7 @@ class AuditController extends Controller
             'totalPages' => $totalPages,
             'limit' => $limit,
             'search' => $search,
+            'auditAction' => $actionFilter,
             'action' => $actionFilter,
             'actionFilter' => $actionFilter,
             'recordType' => $recordType,

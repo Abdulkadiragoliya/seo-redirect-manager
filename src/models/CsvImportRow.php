@@ -26,6 +26,16 @@ class CsvImportRow extends Model
     public string $status = 'pending'; // 'pending', 'imported', 'updated', 'skipped', 'failed'
     public ?string $errorMessage = null;
 
+    public function getRowNumber(): int
+    {
+        return $this->lineNumber;
+    }
+
+    public function getError(): ?string
+    {
+        return $this->errorMessage ?? ($this->errors[0] ?? null);
+    }
+
     /**
      * @inheritdoc
      */

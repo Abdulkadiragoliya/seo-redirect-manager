@@ -13,16 +13,16 @@
                 <input type="text" name="search" class="text" placeholder="{{ 'Search user or details…'|t('seo-redirect-manager') }}" value="{{ search }}">
             </div>
 
-            <select name="action" class="select" onchange="this.form.submit()">
+            <select name="auditAction" class="select" onchange="this.form.submit()">
                 <option value="">{{ "All Actions"|t('seo-redirect-manager') }}</option>
-                <option value="create" {{ action == 'create' ? 'selected' : '' }}>Create</option>
-                <option value="update" {{ action == 'update' ? 'selected' : '' }}>Update</option>
-                <option value="delete" {{ action == 'delete' ? 'selected' : '' }}>Delete</option>
-                <option value="import" {{ action == 'import' ? 'selected' : '' }}>Import</option>
+                <option value="create" {{ (auditAction ?? action) == 'create' ? 'selected' : '' }}>Create</option>
+                <option value="update" {{ (auditAction ?? action) == 'update' ? 'selected' : '' }}>Update</option>
+                <option value="delete" {{ (auditAction ?? action) == 'delete' ? 'selected' : '' }}>Delete</option>
+                <option value="import" {{ (auditAction ?? action) == 'import' ? 'selected' : '' }}>Import</option>
             </select>
 
             <input type="submit" class="btn" value="{{ 'Filter'|t('seo-redirect-manager') }}">
-            {% if search or action %}
+            {% if search or auditAction or action %}
                 <a href="{{ cpUrl('seo-redirect-manager/audit') }}" class="btn">{{ "Reset"|t('seo-redirect-manager') }}</a>
             {% endif %}
         </form>
@@ -77,11 +77,11 @@
         <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
             <div class="pagination">
                 {% if page > 1 %}
-                    <a href="{{ cpUrl('seo-redirect-manager/audit', { page: page - 1, search: search, action: action }) }}" class="btn small">&larr; {{ "Prev"|t('seo-redirect-manager') }}</a>
+                    <a href="{{ cpUrl('seo-redirect-manager/audit', { page: page - 1, search: search, auditAction: auditAction ?? action }) }}" class="btn small">&larr; {{ "Prev"|t('seo-redirect-manager') }}</a>
                 {% endif %}
                 <span style="margin: 0 10px;">{{ "Page {current} of {total}"|t('seo-redirect-manager', { current: page, total: totalPages }) }}</span>
                 {% if page < totalPages %}
-                    <a href="{{ cpUrl('seo-redirect-manager/audit', { page: page + 1, search: search, action: action }) }}" class="btn small">{{ "Next"|t('seo-redirect-manager') }} &rarr;</a>
+                    <a href="{{ cpUrl('seo-redirect-manager/audit', { page: page + 1, search: search, auditAction: auditAction ?? action }) }}" class="btn small">{{ "Next"|t('seo-redirect-manager') }} &rarr;</a>
                 {% endif %}
             </div>
         </div>

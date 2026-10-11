@@ -301,6 +301,14 @@ class SeoRedirectManager extends Plugin
     {
         Event::on(
             Entry::class,
+            Entry::EVENT_BEFORE_SAVE,
+            function(ModelEvent $event) {
+                $this->autoRedirects->handleEntryBeforeSave($event);
+            }
+        );
+
+        Event::on(
+            Entry::class,
             Entry::EVENT_AFTER_SAVE,
             function(ModelEvent $event) {
                 $this->autoRedirects->handleEntrySave($event);

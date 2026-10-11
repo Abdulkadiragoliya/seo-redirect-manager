@@ -22,8 +22,9 @@
             {% if validCount > 0 %}
                 <form method="post" action="{{ actionUrl('seo-redirect-manager/import-export/import') }}">
                     {{ csrfInput() }}
-                    <input type="hidden" name="previewKey" value="{{ previewKey }}">
+                    <input type="hidden" name="conflictPolicy" value="{{ conflictPolicy }}">
                     <button type="submit" class="btn submit">{{ "Confirm & Import Valid Rows"|t('seo-redirect-manager') }}</button>
+                    <a href="{{ cpUrl('seo-redirect-manager/import-export') }}" class="btn" style="margin-left: 8px;">{{ "Cancel"|t('seo-redirect-manager') }}</a>
                 </form>
             {% endif %}
         </div>
