@@ -1,6 +1,6 @@
 # SEO Redirect Manager for Craft CMS 5
 
-![Icon](icon.svg)
+![SEO Redirect Manager](banner.jpeg)
 
 An enterprise-grade, high-performance redirect management and 404 monitoring plugin for **Craft CMS 5**. Built with zero runtime performance penalty for valid requests, stateless Craft Cloud compatibility, SSRF security validation, and automated redirect loop/chain detection.
 
