@@ -1,0 +1,47 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("abdulkadir\\seoredirectmanager\\web\\assets\\cp\\CpAsset") %}
+
+{% set title = "Import & Export"|t('seo-redirect-manager') %}
+{% set selectedSubnavItem = 'import-export' %}
+
+{% block content %}
+    <div class="grid" data-cols="2">
+        <div class="item" data-colspan="1">
+            <div class="pane">
+                <h2>{{ "Import Redirects from CSV"|t('seo-redirect-manager') }}</h2>
+                <p class="light">{{ "Upload a CSV file containing your redirect rules. The importer supports flexible column names (source, destination, status, match_type, notes) and validates every row before saving."|t('seo-redirect-manager') }}</p>
+
+                <form method="post" action="{{ actionUrl('seo-redirect-manager/import-export/preview') }}" enctype="multipart/form-data" style="margin-top: 20px;">
+                    {{ csrfInput() }}
+
+                    <div class="field">
+                        <div class="heading">
+                            <label for="csvFile">{{ "Select CSV File"|t('seo-redirect-manager') }}</label>
+                        </div>
+                        <div class="input">
+                            <input type="file" id="csvFile" name="csvFile" accept=".csv,text/csv" required>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <button type="submit" class="btn submit">{{ "Upload & Preview Validation"|t('seo-redirect-manager') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="item" data-colspan="1">
+            <div class="pane">
+                <h2>{{ "Export Redirects"|t('seo-redirect-manager') }}</h2>
+                <p class="light">{{ "Download all redirect rules in CSV format. Formula injection mitigation is automatically applied to protect spreadsheet editors like Excel and Google Sheets."|t('seo-redirect-manager') }}</p>
+
+                <form method="post" action="{{ actionUrl('seo-redirect-manager/import-export/export') }}" style="margin-top: 20px;">
+                    {{ csrfInput() }}
+                    <button type="submit" class="btn">{{ "Export All Rules to CSV"|t('seo-redirect-manager') }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

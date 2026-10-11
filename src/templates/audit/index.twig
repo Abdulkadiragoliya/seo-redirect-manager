@@ -1,0 +1,89 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("abdulkadir\\seoredirectmanager\\web\\assets\\cp\\CpAsset") %}
+
+{% set title = "Audit Log"|t('seo-redirect-manager') %}
+{% set selectedSubnavItem = 'audit' %}
+
+{% block content %}
+    <div class="srm-toolbar">
+        <form method="get" class="srm-filters">
+            <div class="texticon searchicon">
+                <input type="text" name="search" class="text" placeholder="{{ 'Search user or details…'|t('seo-redirect-manager') }}" value="{{ search }}">
+            </div>
+
+            <select name="action" class="select" onchange="this.form.submit()">
+                <option value="">{{ "All Actions"|t('seo-redirect-manager') }}</option>
+                <option value="create" {{ action == 'create' ? 'selected' : '' }}>Create</option>
+                <option value="update" {{ action == 'update' ? 'selected' : '' }}>Update</option>
+                <option value="delete" {{ action == 'delete' ? 'selected' : '' }}>Delete</option>
+                <option value="import" {{ action == 'import' ? 'selected' : '' }}>Import</option>
+            </select>
+
+            <input type="submit" class="btn" value="{{ 'Filter'|t('seo-redirect-manager') }}">
+            {% if search or action %}
+                <a href="{{ cpUrl('seo-redirect-manager/audit') }}" class="btn">{{ "Reset"|t('seo-redirect-manager') }}</a>
+            {% endif %}
+        </form>
+
+        <div>
+            <span class="light">{{ "{total} audit entries"|t('seo-redirect-manager', { total: total }) }}</span>
+        </div>
+    </div>
+
+    <div class="tableview-container">
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th class="thin">{{ "Date"|t('seo-redirect-manager') }}</th>
+                    <th>{{ "User"|t('seo-redirect-manager') }}</th>
+                    <th class="thin">{{ "Action"|t('seo-redirect-manager') }}</th>
+                    <th class="thin">{{ "Redirect ID"|t('seo-redirect-manager') }}</th>
+                    <th>{{ "Diff / Changes"|t('seo-redirect-manager') }}</th>
+                    <th class="thin">{{ "IP"|t('seo-redirect-manager') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if logs|length %}
+                    {% for log in logs %}
+                        <tr>
+                            <td class="light srm-mono-text">{{ log.dateCreated|date('short') }}</td>
+                            <td><strong>{{ log.user ? log.user.username : 'System' }}</strong></td>
+                            <td><span class="srm-badge srm-badge-307">{{ log.action }}</span></td>
+                            <td class="srm-mono-text">{{ log.redirectId ?: '—' }}</td>
+                            <td>
+                                {% if log.details %}
+                                    <div class="srm-diff-box">{{ log.details|json_encode(constant('JSON_PRETTY_PRINT')) }}</div>
+                                {% else %}
+                                    <span class="light">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="light srm-mono-text">{{ log.ipAddress ?: '—' }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="light" style="text-align: center; padding: 30px;">
+                            {{ "No audit log records recorded yet."|t('seo-redirect-manager') }}
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if totalPages > 1 %}
+        <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+            <div class="pagination">
+                {% if page > 1 %}
+                    <a href="{{ cpUrl('seo-redirect-manager/audit', { page: page - 1, search: search, action: action }) }}" class="btn small">&larr; {{ "Prev"|t('seo-redirect-manager') }}</a>
+                {% endif %}
+                <span style="margin: 0 10px;">{{ "Page {current} of {total}"|t('seo-redirect-manager', { current: page, total: totalPages }) }}</span>
+                {% if page < totalPages %}
+                    <a href="{{ cpUrl('seo-redirect-manager/audit', { page: page + 1, search: search, action: action }) }}" class="btn small">{{ "Next"|t('seo-redirect-manager') }} &rarr;</a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

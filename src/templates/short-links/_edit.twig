@@ -1,0 +1,86 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("abdulkadir\\seoredirectmanager\\web\\assets\\cp\\CpAsset") %}
+
+{% set title = isNew ? "Create Short Link"|t('seo-redirect-manager') : "Edit Short Link"|t('seo-redirect-manager') %}
+{% set selectedSubnavItem = 'short-links' %}
+
+{% block actionButton %}
+    <div class="buttons">
+        <a href="{{ cpUrl('seo-redirect-manager/short-links') }}" class="btn">{{ "Cancel"|t('seo-redirect-manager') }}</a>
+        <button type="submit" form="shortlink-form" class="btn submit">{{ "Save Short Link"|t('seo-redirect-manager') }}</button>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <form id="shortlink-form" method="post" action="{{ actionUrl('seo-redirect-manager/short-links/save') }}">
+        {{ csrfInput() }}
+        {{ forms.hidden({ name: 'id', value: shortLink.id }) }}
+
+        <div class="pane">
+            {{ forms.textField({
+                label: "Vanity Slug"|t('seo-redirect-manager'),
+                instructions: "Short URL segment (e.g. 'sale', 'promo2026'). Will be accessible as /slug."|t('seo-redirect-manager'),
+                id: 'slug',
+                name: 'slug',
+                value: shortLink.slug,
+                required: true,
+                errors: shortLink.getErrors('slug')
+            }) }}
+
+            {{ forms.textField({
+                label: "Destination URL"|t('seo-redirect-manager'),
+                instructions: "Full external target URL or internal path."|t('seo-redirect-manager'),
+                id: 'destinationUrl',
+                name: 'destinationUrl',
+                value: shortLink.destinationUrl,
+                required: true,
+                errors: shortLink.getErrors('destinationUrl')
+            }) }}
+
+            <div class="grid" data-cols="2">
+                <div class="item" data-colspan="1">
+                    {{ forms.selectField({
+                        label: "Status Code"|t('seo-redirect-manager'),
+                        id: 'statusCode',
+                        name: 'statusCode',
+                        value: shortLink.statusCode,
+                        options: [
+                            { label: '301 Moved Permanently', value: 301 },
+                            { label: '302 Found (Temporary)', value: 302 },
+                            { label: '307 Temporary Redirect', value: 307 },
+                            { label: '308 Permanent Redirect', value: 308 }
+                        ]
+                    }) }}
+                </div>
+            </div>
+
+            {{ forms.textareaField({
+                label: "Notes"|t('seo-redirect-manager'),
+                instructions: "Campaign or internal notes."|t('seo-redirect-manager'),
+                id: 'notes',
+                name: 'notes',
+                value: shortLink.notes,
+                rows: 2
+            }) }}
+
+            {{ forms.lightswitchField({
+                label: "Enabled"|t('seo-redirect-manager'),
+                id: 'enabled',
+                name: 'enabled',
+                on: shortLink.enabled
+            }) }}
+        </div>
+    </form>
+
+    {% if not isNew %}
+        <div style="margin-top: 24px; text-align: right;">
+            <form method="post" action="{{ actionUrl('seo-redirect-manager/short-links/delete') }}" onsubmit="return confirm('{{ 'Are you sure you want to delete this short link?'|t('seo-redirect-manager') }}')">
+                {{ csrfInput() }}
+                {{ forms.hidden({ name: 'id', value: shortLink.id }) }}
+                <button type="submit" class="btn small error">{{ "Delete Short Link"|t('seo-redirect-manager') }}</button>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}

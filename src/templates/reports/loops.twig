@@ -1,0 +1,38 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("abdulkadir\\seoredirectmanager\\web\\assets\\cp\\CpAsset") %}
+
+{% set title = "Redirect Loops"|t('seo-redirect-manager') %}
+{% set selectedSubnavItem = 'reports' %}
+
+{% block content %}
+    <div class="pane">
+        <p class="light" style="margin-bottom: 20px;">
+            {{ "Redirect loops break browser navigation and search engine crawling with ERR_TOO_MANY_REDIRECTS errors. Review the cycles below to disable or correct the conflicting rules."|t('seo-redirect-manager') }}
+        </p>
+
+        {% if loops|length %}
+            {% for loopData in loops %}
+                <div class="srm-chain-item" style="border-left: 4px solid #c5221f;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="srm-badge srm-badge-410">{{ "Infinite Loop Detected"|t('seo-redirect-manager') }}</span>
+                        
+                        <a href="{{ cpUrl('seo-redirect-manager/redirects/' ~ loopData.start_id) }}" class="btn small">{{ "Edit Starting Rule"|t('seo-redirect-manager') }}</a>
+                    </div>
+
+                    <div class="srm-flow-path">
+                        {% for step in loopData.cycle %}
+                            <span class="srm-flow-node {{ loop.first or loop.last ? 'srm-tag-danger' : '' }}">{{ step }}</span>
+                            {% if not loop.last %}
+                                <span class="srm-flow-arrow">&rarr;</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="light">{{ "No circular redirect loops detected in your rules."|t('seo-redirect-manager') }}</p>
+        {% endif %}
+    </div>
+{% endblock %}

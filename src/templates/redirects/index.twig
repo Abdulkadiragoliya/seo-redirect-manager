@@ -1,0 +1,124 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("abdulkadir\\seoredirectmanager\\web\\assets\\cp\\CpAsset") %}
+
+{% set title = "Redirect Rules"|t('seo-redirect-manager') %}
+{% set selectedSubnavItem = 'redirects' %}
+
+{% block actionButton %}
+    <a href="{{ cpUrl('seo-redirect-manager/redirects/new') }}" class="btn submit add icon">{{ "New Redirect"|t('seo-redirect-manager') }}</a>
+{% endblock %}
+
+{% block content %}
+    <div class="srm-toolbar">
+        <form method="get" class="srm-filters">
+            <div class="texticon searchicon">
+                <input type="text" name="search" class="text" placeholder="{{ 'Search source or destination…'|t('seo-redirect-manager') }}" value="{{ search }}">
+            </div>
+
+            <select name="matchType" class="select" onchange="this.form.submit()">
+                <option value="">{{ "All Match Types"|t('seo-redirect-manager') }}</option>
+                <option value="exact" {{ matchType == 'exact' ? 'selected' : '' }}>Exact</option>
+                <option value="regex" {{ matchType == 'regex' ? 'selected' : '' }}>Regex</option>
+            </select>
+
+            <select name="statusCode" class="select" onchange="this.form.submit()">
+                <option value="">{{ "All Status Codes"|t('seo-redirect-manager') }}</option>
+                <option value="301" {{ statusCode == '301' ? 'selected' : '' }}>301 Permanent</option>
+                <option value="302" {{ statusCode == '302' ? 'selected' : '' }}>302 Found</option>
+                <option value="307" {{ statusCode == '307' ? 'selected' : '' }}>307 Temporary</option>
+                <option value="308" {{ statusCode == '308' ? 'selected' : '' }}>308 Permanent</option>
+                <option value="410" {{ statusCode == '410' ? 'selected' : '' }}>410 Gone</option>
+                <option value="451" {{ statusCode == '451' ? 'selected' : '' }}>451 Legal Block</option>
+            </select>
+
+            <input type="submit" class="btn" value="{{ 'Filter'|t('seo-redirect-manager') }}">
+            {% if search or matchType or statusCode %}
+                <a href="{{ cpUrl('seo-redirect-manager/redirects') }}" class="btn">{{ "Reset"|t('seo-redirect-manager') }}</a>
+            {% endif %}
+        </form>
+
+        <div>
+            <span class="light">{{ "{total} total rules"|t('seo-redirect-manager', { total: total }) }}</span>
+        </div>
+    </div>
+
+    <form method="post" action="{{ actionUrl('seo-redirect-manager/redirects/bulk') }}">
+        {{ csrfInput() }}
+
+        <div class="tableview-container">
+            <table class="data fullwidth">
+                <thead>
+                    <tr>
+                        <th class="thin"><input type="checkbox" id="srm-select-all"></th>
+                        <th>{{ "Source URL"|t('seo-redirect-manager') }}</th>
+                        <th>{{ "Destination URL"|t('seo-redirect-manager') }}</th>
+                        <th class="thin">{{ "Match"|t('seo-redirect-manager') }}</th>
+                        <th class="thin">{{ "Status"|t('seo-redirect-manager') }}</th>
+                        <th class="thin">{{ "Hits"|t('seo-redirect-manager') }}</th>
+                        <th class="thin">{{ "Active"|t('seo-redirect-manager') }}</th>
+                        <th class="thin"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if redirects|length %}
+                        {% for r in redirects %}
+                            <tr>
+                                <td><input type="checkbox" name="ids[]" value="{{ r.id }}" class="srm-row-select"></td>
+                                <td class="srm-mono-text">
+                                    <a href="{{ cpUrl('seo-redirect-manager/redirects/' ~ r.id) }}"><strong>{{ r.sourceUrl }}</strong></a>
+                                    {% if r.description %}
+                                        <div class="light" style="font-size: 11px;">{{ r.description }}</div>
+                                    {% endif %}
+                                </td>
+                                <td class="srm-mono-text">{{ r.destinationUrl }}</td>
+                                <td><span class="srm-badge srm-badge-{{ r.matchType }}">{{ r.matchType }}</span></td>
+                                <td><span class="srm-badge srm-badge-{{ r.statusCode }}">{{ r.statusCode }}</span></td>
+                                <td>{{ r.hitCount|number_format }}</td>
+                                <td>
+                                    {% if r.enabled %}
+                                        <span class="srm-badge srm-badge-active">{{ "Yes"|t('seo-redirect-manager') }}</span>
+                                    {% else %}
+                                        <span class="srm-badge srm-badge-disabled">{{ "No"|t('seo-redirect-manager') }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="thin">
+                                    <a href="{{ cpUrl('seo-redirect-manager/redirects/' ~ r.id) }}" class="icon edit" title="{{ 'Edit'|t('seo-redirect-manager') }}"></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="light" style="text-align: center; padding: 30px;">
+                                {{ "No redirects found matching your criteria."|t('seo-redirect-manager') }}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if redirects|length %}
+            <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+                <div class="buttons">
+                    <button type="submit" name="bulkAction" value="enable" class="btn small">{{ "Enable Selected"|t('seo-redirect-manager') }}</button>
+                    <button type="submit" name="bulkAction" value="disable" class="btn small">{{ "Disable Selected"|t('seo-redirect-manager') }}</button>
+                    <button type="submit" name="bulkAction" value="delete" class="btn small error" onclick="return confirm('{{ 'Are you sure you want to delete selected redirects?'|t('seo-redirect-manager') }}')">{{ "Delete Selected"|t('seo-redirect-manager') }}</button>
+                </div>
+
+                {% if totalPages > 1 %}
+                    <div class="pagination">
+                        {% if page > 1 %}
+                            <a href="{{ cpUrl('seo-redirect-manager/redirects', { page: page - 1, search: search, matchType: matchType, statusCode: statusCode }) }}" class="btn small">&larr; {{ "Prev"|t('seo-redirect-manager') }}</a>
+                        {% endif %}
+                        <span style="margin: 0 10px;">{{ "Page {current} of {total}"|t('seo-redirect-manager', { current: page, total: totalPages }) }}</span>
+                        {% if page < totalPages %}
+                            <a href="{{ cpUrl('seo-redirect-manager/redirects', { page: page + 1, search: search, matchType: matchType, statusCode: statusCode }) }}" class="btn small">{{ "Next"|t('seo-redirect-manager') }} &rarr;</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </form>
+{% endblock %}

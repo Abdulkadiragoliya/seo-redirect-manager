@@ -1,0 +1,115 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("abdulkadir\\seoredirectmanager\\web\\assets\\cp\\CpAsset") %}
+
+{% set title = "404 Not Found Monitor"|t('seo-redirect-manager') %}
+{% set selectedSubnavItem = 'not-found' %}
+
+{% block actionButton %}
+    <form method="post" action="{{ actionUrl('seo-redirect-manager/not-found/clear') }}" onsubmit="return confirm('{{ 'Are you sure you want to clear 404 logs?'|t('seo-redirect-manager') }}')">
+        {{ csrfInput() }}
+        <button type="submit" class="btn small">{{ "Clear All Logs"|t('seo-redirect-manager') }}</button>
+    </form>
+{% endblock %}
+
+{% block content %}
+    <div class="srm-toolbar">
+        <form method="get" class="srm-filters">
+            <div class="texticon searchicon">
+                <input type="text" name="search" class="text" placeholder="{{ 'Search URI or referrer…'|t('seo-redirect-manager') }}" value="{{ search }}">
+            </div>
+
+            <select name="status" class="select" onchange="this.form.submit()">
+                <option value="unresolved" {{ status == 'unresolved' ? 'selected' : '' }}>{{ "Unresolved"|t('seo-redirect-manager') }}</option>
+                <option value="ignored" {{ status == 'ignored' ? 'selected' : '' }}>{{ "Ignored"|t('seo-redirect-manager') }}</option>
+                <option value="resolved" {{ status == 'resolved' ? 'selected' : '' }}>{{ "Resolved"|t('seo-redirect-manager') }}</option>
+                <option value="all" {{ status == 'all' ? 'selected' : '' }}>{{ "All Statuses"|t('seo-redirect-manager') }}</option>
+            </select>
+
+            <input type="submit" class="btn" value="{{ 'Filter'|t('seo-redirect-manager') }}">
+            {% if search or status != 'unresolved' %}
+                <a href="{{ cpUrl('seo-redirect-manager/not-found') }}" class="btn">{{ "Reset"|t('seo-redirect-manager') }}</a>
+            {% endif %}
+        </form>
+
+        <div>
+            <span class="light">{{ "{total} logged errors"|t('seo-redirect-manager', { total: total }) }}</span>
+        </div>
+    </div>
+
+    <div class="tableview-container">
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>{{ "Requested Path / URI"|t('seo-redirect-manager') }}</th>
+                    <th>{{ "Referrer"|t('seo-redirect-manager') }}</th>
+                    <th class="thin">{{ "Hits"|t('seo-redirect-manager') }}</th>
+                    <th class="thin">{{ "Last Hit"|t('seo-redirect-manager') }}</th>
+                    <th class="thin">{{ "Status"|t('seo-redirect-manager') }}</th>
+                    <th class="thin">{{ "Actions"|t('seo-redirect-manager') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if logs|length %}
+                    {% for log in logs %}
+                        <tr>
+                            <td class="srm-mono-text">
+                                <strong>{{ log.uri }}</strong>
+                            </td>
+                            <td class="srm-mono-text light">
+                                {{ log.referrer ?: '—' }}
+                            </td>
+                            <td><strong>{{ log.hitCount|number_format }}</strong></td>
+                            <td class="light">{{ log.lastHitAt ? log.lastHitAt|date('short') : '—' }}</td>
+                            <td>
+                                <span class="srm-badge srm-badge-{{ log.status }}">{{ log.status|capitalize }}</span>
+                            </td>
+                            <td>
+                                <div class="buttons" style="display: flex; gap: 4px;">
+                                    <a href="{{ cpUrl('seo-redirect-manager/redirects/new', { source: log.uri }) }}" class="btn small submit">{{ "Redirect"|t('seo-redirect-manager') }}</a>
+                                    
+                                    {% if log.status != 'ignored' %}
+                                        <form method="post" action="{{ actionUrl('seo-redirect-manager/not-found/update-status') }}">
+                                            {{ csrfInput() }}
+                                            <input type="hidden" name="id" value="{{ log.id }}">
+                                            <input type="hidden" name="status" value="ignored">
+                                            <button type="submit" class="btn small">{{ "Ignore"|t('seo-redirect-manager') }}</button>
+                                        </form>
+                                    {% else %}
+                                        <form method="post" action="{{ actionUrl('seo-redirect-manager/not-found/update-status') }}">
+                                            {{ csrfInput() }}
+                                            <input type="hidden" name="id" value="{{ log.id }}">
+                                            <input type="hidden" name="status" value="unresolved">
+                                            <button type="submit" class="btn small">{{ "Unignore"|t('seo-redirect-manager') }}</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="light" style="text-align: center; padding: 30px;">
+                            {{ "No 404 error entries found."|t('seo-redirect-manager') }}
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if totalPages > 1 %}
+        <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+            <div class="pagination">
+                {% if page > 1 %}
+                    <a href="{{ cpUrl('seo-redirect-manager/not-found', { page: page - 1, search: search, status: status }) }}" class="btn small">&larr; {{ "Prev"|t('seo-redirect-manager') }}</a>
+                {% endif %}
+                <span style="margin: 0 10px;">{{ "Page {current} of {total}"|t('seo-redirect-manager', { current: page, total: totalPages }) }}</span>
+                {% if page < totalPages %}
+                    <a href="{{ cpUrl('seo-redirect-manager/not-found', { page: page + 1, search: search, status: status }) }}" class="btn small">{{ "Next"|t('seo-redirect-manager') }} &rarr;</a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

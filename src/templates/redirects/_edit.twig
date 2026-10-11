@@ -1,0 +1,144 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("abdulkadir\\seoredirectmanager\\web\\assets\\cp\\CpAsset") %}
+
+{% set title = isNew ? "Create Redirect"|t('seo-redirect-manager') : "Edit Redirect"|t('seo-redirect-manager') %}
+{% set selectedSubnavItem = 'redirects' %}
+
+{% block actionButton %}
+    <div class="buttons">
+        <a href="{{ cpUrl('seo-redirect-manager/redirects') }}" class="btn">{{ "Cancel"|t('seo-redirect-manager') }}</a>
+        <button type="submit" form="redirect-form" class="btn submit">{{ "Save Redirect"|t('seo-redirect-manager') }}</button>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <form id="redirect-form" method="post" action="{{ actionUrl('seo-redirect-manager/redirects/save') }}">
+        {{ csrfInput() }}
+        {{ forms.hidden({ name: 'id', value: redirect.id }) }}
+
+        <div class="pane">
+            {{ forms.textField({
+                label: "Source URL / Pattern"|t('seo-redirect-manager'),
+                instructions: "The relative path or URL to intercept (e.g., /old-blog/post-1 or ^/blog/(.*)$ for regex)."|t('seo-redirect-manager'),
+                id: 'sourceUrl',
+                name: 'sourceUrl',
+                value: redirect.sourceUrl,
+                required: true,
+                errors: redirect.getErrors('sourceUrl')
+            }) }}
+
+            {{ forms.textField({
+                label: "Destination URL"|t('seo-redirect-manager'),
+                instructions: "Target path, full URL, or regex capture replacement (e.g. /new-blog/$1). Not required for 410 or 451."|t('seo-redirect-manager'),
+                id: 'destinationUrl',
+                name: 'destinationUrl',
+                value: redirect.destinationUrl,
+                errors: redirect.getErrors('destinationUrl')
+            }) }}
+
+            <div class="grid" data-cols="2">
+                <div class="item" data-colspan="1">
+                    {{ forms.selectField({
+                        label: "Match Type"|t('seo-redirect-manager'),
+                        instructions: "Choose Exact match or Regular Expression pattern."|t('seo-redirect-manager'),
+                        id: 'matchType',
+                        name: 'matchType',
+                        value: redirect.matchType,
+                        options: [
+                            { label: 'Exact Match', value: 'exact' },
+                            { label: 'Regular Expression (Regex)', value: 'regex' }
+                        ]
+                    }) }}
+                </div>
+                <div class="item" data-colspan="1">
+                    {{ forms.selectField({
+                        label: "Status Code"|t('seo-redirect-manager'),
+                        instructions: "HTTP response status code."|t('seo-redirect-manager'),
+                        id: 'statusCode',
+                        name: 'statusCode',
+                        value: redirect.statusCode,
+                        options: [
+                            { label: '301 Moved Permanently', value: 301 },
+                            { label: '302 Found (Temporary)', value: 302 },
+                            { label: '307 Temporary Redirect', value: 307 },
+                            { label: '308 Permanent Redirect', value: 308 },
+                            { label: '410 Gone', value: 410 },
+                            { label: '451 Unavailable For Legal Reasons', value: 451 }
+                        ]
+                    }) }}
+                </div>
+            </div>
+
+            <div class="grid" data-cols="2">
+                <div class="item" data-colspan="1">
+                    {{ forms.selectField({
+                        label: "Query String Policy"|t('seo-redirect-manager'),
+                        instructions: "How query parameters should be preserved or matched."|t('seo-redirect-manager'),
+                        id: 'queryPolicy',
+                        name: 'queryPolicy',
+                        value: redirect.queryPolicy,
+                        options: [
+                            { label: 'Preserve (Pass through query parameters)', value: 'preserve' },
+                            { label: 'Exact (Match query parameters exactly)', value: 'exact' },
+                            { label: 'Ignore (Discard incoming query parameters)', value: 'ignore' }
+                        ]
+                    }) }}
+                </div>
+                <div class="item" data-colspan="1">
+                    {{ forms.textField({
+                        label: "Priority"|t('seo-redirect-manager'),
+                        instructions: "Higher numbers evaluate first (regex rules only)."|t('seo-redirect-manager'),
+                        id: 'priority',
+                        name: 'priority',
+                        type: 'number',
+                        value: redirect.priority ?: 0
+                    }) }}
+                </div>
+            </div>
+
+            {% set sites = craft.app.sites.getAllSites() %}
+            {% if sites|length > 1 %}
+                {% set siteOptions = [{ label: 'All Sites (Global)', value: '' }] %}
+                {% for site in sites %}
+                    {% set siteOptions = siteOptions|merge([{ label: site.name, value: site.id }]) %}
+                {% endfor %}
+                {{ forms.selectField({
+                    label: "Target Site"|t('seo-redirect-manager'),
+                    instructions: "Apply rule specifically to one site or all sites."|t('seo-redirect-manager'),
+                    id: 'siteId',
+                    name: 'siteId',
+                    value: redirect.siteId,
+                    options: siteOptions
+                }) }}
+            {% endif %}
+
+            {{ forms.textareaField({
+                label: "Notes / Description"|t('seo-redirect-manager'),
+                instructions: "Optional context, ticket reference, or reason for this redirect."|t('seo-redirect-manager'),
+                id: 'description',
+                name: 'description',
+                value: redirect.description,
+                rows: 2
+            }) }}
+
+            {{ forms.lightswitchField({
+                label: "Enabled"|t('seo-redirect-manager'),
+                id: 'enabled',
+                name: 'enabled',
+                on: redirect.enabled
+            }) }}
+        </div>
+    </form>
+
+    {% if not isNew %}
+        <div style="margin-top: 24px; text-align: right;">
+            <form method="post" action="{{ actionUrl('seo-redirect-manager/redirects/delete') }}" onsubmit="return confirm('{{ 'Are you sure you want to delete this redirect rule?'|t('seo-redirect-manager') }}')">
+                {{ csrfInput() }}
+                {{ forms.hidden({ name: 'id', value: redirect.id }) }}
+                <button type="submit" class="btn small error">{{ "Delete Redirect"|t('seo-redirect-manager') }}</button>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}

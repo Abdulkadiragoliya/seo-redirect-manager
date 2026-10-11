@@ -1,0 +1,21 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("abdulkadir\\seoredirectmanager\\web\\assets\\cp\\CpAsset") %}
+
+{% set title = "Settings"|t('seo-redirect-manager') %}
+{% set selectedSubnavItem = 'settings' %}
+
+{% block actionButton %}
+    <button type="submit" form="settings-form" class="btn submit">{{ "Save Settings"|t('seo-redirect-manager') }}</button>
+{% endblock %}
+
+{% block content %}
+    <form id="settings-form" method="post" action="{{ actionUrl('seo-redirect-manager/settings/save') }}">
+        {{ csrfInput() }}
+
+        <div class="pane">
+            {% include "seo-redirect-manager/settings/_plugin-settings" %}
+        </div>
+    </form>
+{% endblock %}

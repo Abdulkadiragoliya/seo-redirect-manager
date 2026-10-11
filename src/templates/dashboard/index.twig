@@ -1,0 +1,115 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("abdulkadir\\seoredirectmanager\\web\\assets\\cp\\CpAsset") %}
+
+{% set title = "Dashboard"|t('seo-redirect-manager') %}
+{% set selectedSubnavItem = 'dashboard' %}
+
+{% block actionButton %}
+    <a href="{{ cpUrl('seo-redirect-manager/redirects/new') }}" class="btn submit add icon">{{ "New Redirect"|t('seo-redirect-manager') }}</a>
+{% endblock %}
+
+{% block content %}
+    <div class="srm-stats-grid">
+        <div class="srm-stat-card">
+            <div class="srm-stat-header">
+                <span class="srm-stat-title">{{ "Total Redirects"|t('seo-redirect-manager') }}</span>
+            </div>
+            <div class="srm-stat-value">{{ metrics.total_redirects|number_format }}</div>
+            <div class="srm-stat-sub">{{ "{count} active"|t('seo-redirect-manager', { count: metrics.active_redirects }) }}</div>
+        </div>
+
+        <div class="srm-stat-card">
+            <div class="srm-stat-header">
+                <span class="srm-stat-title">{{ "Total Hits"|t('seo-redirect-manager') }}</span>
+            </div>
+            <div class="srm-stat-value">{{ metrics.total_hits|number_format }}</div>
+            <div class="srm-stat-sub">{{ "Processed redirects"|t('seo-redirect-manager') }}</div>
+        </div>
+
+        <div class="srm-stat-card">
+            <div class="srm-stat-header">
+                <span class="srm-stat-title">{{ "Unresolved 404s"|t('seo-redirect-manager') }}</span>
+            </div>
+            <div class="srm-stat-value {{ metrics.unresolved_404s > 0 ? 'srm-tag-danger' : '' }}">{{ metrics.unresolved_404s|number_format }}</div>
+            <div class="srm-stat-sub">
+                <a href="{{ cpUrl('seo-redirect-manager/not-found') }}">{{ "Review 404 logs"|t('seo-redirect-manager') }} &rarr;</a>
+            </div>
+        </div>
+
+        <div class="srm-stat-card">
+            <div class="srm-stat-header">
+                <span class="srm-stat-title">{{ "Chains & Loops"|t('seo-redirect-manager') }}</span>
+            </div>
+            <div class="srm-stat-value {{ (metrics.chains_count > 0 or metrics.loops_count > 0) ? 'srm-tag-warning' : '' }}">
+                {{ (metrics.chains_count + metrics.loops_count)|number_format }}
+            </div>
+            <div class="srm-stat-sub">
+                <a href="{{ cpUrl('seo-redirect-manager/reports/chains') }}">{{ "{chains} chains, {loops} loops"|t('seo-redirect-manager', { chains: metrics.chains_count, loops: metrics.loops_count }) }} &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid" data-cols="2">
+        <div class="item" data-colspan="1">
+            <div class="pane">
+                <h2>{{ "Top Redirects by Hits"|t('seo-redirect-manager') }}</h2>
+                {% if topRedirects|length %}
+                    <table class="data fullwidth">
+                        <thead>
+                            <tr>
+                                <th>{{ "Source"|t('seo-redirect-manager') }}</th>
+                                <th>{{ "Destination"|t('seo-redirect-manager') }}</th>
+                                <th class="thin">{{ "Status"|t('seo-redirect-manager') }}</th>
+                                <th class="thin">{{ "Hits"|t('seo-redirect-manager') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in topRedirects %}
+                                <tr>
+                                    <td class="srm-mono-text"><a href="{{ cpUrl('seo-redirect-manager/redirects/' ~ r.id) }}">{{ r.sourceUrl }}</a></td>
+                                    <td class="srm-mono-text">{{ r.destinationUrl }}</td>
+                                    <td><span class="srm-badge srm-badge-{{ r.statusCode }}">{{ r.statusCode }}</span></td>
+                                    <td><strong>{{ r.hitCount|number_format }}</strong></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="light">{{ "No redirect hits recorded yet."|t('seo-redirect-manager') }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="item" data-colspan="1">
+            <div class="pane">
+                <h2>{{ "Recent 404 Errors"|t('seo-redirect-manager') }}</h2>
+                {% if recent404s|length %}
+                    <table class="data fullwidth">
+                        <thead>
+                            <tr>
+                                <th>{{ "Path"|t('seo-redirect-manager') }}</th>
+                                <th class="thin">{{ "Hits"|t('seo-redirect-manager') }}</th>
+                                <th class="thin">{{ "Action"|t('seo-redirect-manager') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in recent404s %}
+                                <tr>
+                                    <td class="srm-mono-text">{{ log.uri }}</td>
+                                    <td>{{ log.hitCount|number_format }}</td>
+                                    <td>
+                                        <a href="{{ cpUrl('seo-redirect-manager/redirects/new', { source: log.uri }) }}" class="btn small">{{ "Fix"|t('seo-redirect-manager') }}</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="light">{{ "No 404 errors recorded."|t('seo-redirect-manager') }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("abdulkadir\\seoredirectmanager\\web\\assets\\cp\\CpAsset") %}
+
+{% set title = "Preview CSV Import"|t('seo-redirect-manager') %}
+{% set selectedSubnavItem = 'import-export' %}
+
+{% block content %}
+    <div class="pane">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <h2>{{ "Validation Summary"|t('seo-redirect-manager') }}</h2>
+                <p class="light">
+                    {{ "{valid} of {total} rows are ready to import."|t('seo-redirect-manager', { valid: validCount, total: total }) }}
+                    {% if invalidCount > 0 %}
+                        <span class="srm-tag-danger">({{ "{count} invalid rows will be skipped"|t('seo-redirect-manager', { count: invalidCount }) }})</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            {% if validCount > 0 %}
+                <form method="post" action="{{ actionUrl('seo-redirect-manager/import-export/import') }}">
+                    {{ csrfInput() }}
+                    <input type="hidden" name="previewKey" value="{{ previewKey }}">
+                    <button type="submit" class="btn submit">{{ "Confirm & Import Valid Rows"|t('seo-redirect-manager') }}</button>
+                </form>
+            {% endif %}
+        </div>
+
+        <div class="tableview-container">
+            <table class="data fullwidth">
+                <thead>
+                    <tr>
+                        <th class="thin">{{ "Row"|t('seo-redirect-manager') }}</th>
+                        <th>{{ "Source"|t('seo-redirect-manager') }}</th>
+                        <th>{{ "Destination"|t('seo-redirect-manager') }}</th>
+                        <th class="thin">{{ "Match"|t('seo-redirect-manager') }}</th>
+                        <th class="thin">{{ "Status"|t('seo-redirect-manager') }}</th>
+                        <th class="thin">{{ "Validation"|t('seo-redirect-manager') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in preview %}
+                        <tr>
+                            <td>{{ row.rowNumber }}</td>
+                            <td class="srm-mono-text">{{ row.source }}</td>
+                            <td class="srm-mono-text">{{ row.destination }}</td>
+                            <td><span class="srm-badge srm-badge-{{ row.matchType }}">{{ row.matchType }}</span></td>
+                            <td><span class="srm-badge srm-badge-{{ row.statusCode }}">{{ row.statusCode }}</span></td>
+                            <td>
+                                {% if row.isValid %}
+                                    <span class="srm-badge srm-badge-active">{{ "Valid"|t('seo-redirect-manager') }}</span>
+                                {% else %}
+                                    <span class="srm-badge srm-badge-410">{{ row.error }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

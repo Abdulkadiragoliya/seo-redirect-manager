@@ -1,0 +1,30 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("abdulkadir\\seoredirectmanager\\web\\assets\\cp\\CpAsset") %}
+
+{% set title = "Destination Health Check"|t('seo-redirect-manager') %}
+{% set selectedSubnavItem = 'reports' %}
+
+{% block content %}
+    <div class="pane">
+        <p class="light" style="margin-bottom: 20px;">
+            {{ "Verify whether redirect targets exist and respond with valid HTTP status codes. For external destinations, requests are protected against SSRF and executed with strict timeouts."|t('seo-redirect-manager') }}
+        </p>
+
+        <form method="post" action="{{ actionUrl('seo-redirect-manager/reports/run-destination-check') }}">
+            {{ csrfInput() }}
+            
+            {{ forms.textField({
+                label: "Batch Limit"|t('seo-redirect-manager'),
+                instructions: "Maximum number of redirect destinations to check in this queue job."|t('seo-redirect-manager'),
+                id: 'limit',
+                name: 'limit',
+                type: 'number',
+                value: 50
+            }) }}
+
+            <button type="submit" class="btn submit">{{ "Run Destination Health Check via Queue"|t('seo-redirect-manager') }}</button>
+        </form>
+    </div>
+{% endblock %}

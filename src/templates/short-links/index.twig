@@ -1,0 +1,64 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("abdulkadir\\seoredirectmanager\\web\\assets\\cp\\CpAsset") %}
+
+{% set title = "Short Links & Vanity URLs"|t('seo-redirect-manager') %}
+{% set selectedSubnavItem = 'short-links' %}
+
+{% block actionButton %}
+    <a href="{{ cpUrl('seo-redirect-manager/short-links/new') }}" class="btn submit add icon">{{ "New Short Link"|t('seo-redirect-manager') }}</a>
+{% endblock %}
+
+{% block content %}
+    <div class="tableview-container">
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>{{ "Slug / Vanity Path"|t('seo-redirect-manager') }}</th>
+                    <th>{{ "Target Destination"|t('seo-redirect-manager') }}</th>
+                    <th class="thin">{{ "Status"|t('seo-redirect-manager') }}</th>
+                    <th class="thin">{{ "Hits"|t('seo-redirect-manager') }}</th>
+                    <th class="thin">{{ "Last Hit"|t('seo-redirect-manager') }}</th>
+                    <th class="thin">{{ "Active"|t('seo-redirect-manager') }}</th>
+                    <th class="thin"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if shortLinks|length %}
+                    {% for sl in shortLinks %}
+                        <tr>
+                            <td class="srm-mono-text">
+                                <a href="{{ cpUrl('seo-redirect-manager/short-links/' ~ sl.id) }}"><strong>/{{ sl.slug }}</strong></a>
+                                <button type="button" class="btn small" style="margin-left: 6px; padding: 2px 6px; font-size: 11px;" onclick="srmCopy('{{ siteUrl(sl.slug) }}', this)">{{ "Copy"|t('seo-redirect-manager') }}</button>
+                                {% if sl.notes %}
+                                    <div class="light" style="font-size: 11px;">{{ sl.notes }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="srm-mono-text">{{ sl.destinationUrl }}</td>
+                            <td><span class="srm-badge srm-badge-{{ sl.statusCode }}">{{ sl.statusCode }}</span></td>
+                            <td><strong>{{ sl.hitCount|number_format }}</strong></td>
+                            <td class="light">{{ sl.lastHitAt ? sl.lastHitAt|date('short') : '—' }}</td>
+                            <td>
+                                {% if sl.enabled %}
+                                    <span class="srm-badge srm-badge-active">{{ "Yes"|t('seo-redirect-manager') }}</span>
+                                {% else %}
+                                    <span class="srm-badge srm-badge-disabled">{{ "No"|t('seo-redirect-manager') }}</span>
+                                vanity{% endif %}
+                            </td>
+                            <td class="thin">
+                                <a href="{{ cpUrl('seo-redirect-manager/short-links/' ~ sl.id) }}" class="icon edit" title="{{ 'Edit'|t('seo-redirect-manager') }}"></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="light" style="text-align: center; padding: 30px;">
+                            {{ "No short links created yet. Create one to generate clean marketing URLs."|t('seo-redirect-manager') }}
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

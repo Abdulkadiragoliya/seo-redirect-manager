@@ -1,0 +1,120 @@
+{% import "_includes/forms.twig" as forms %}
+
+<h2>{{ "Redirect Engine Settings"|t('seo-redirect-manager') }}</h2>
+
+{{ forms.lightswitchField({
+    label: "Enable Redirects"|t('seo-redirect-manager'),
+    instructions: "Whether the redirect resolution engine should intercept 404 requests and resolve matched rules."|t('seo-redirect-manager'),
+    name: 'enableRedirects',
+    on: settings.enableRedirects,
+    errors: settings.getErrors('enableRedirects')
+}) }}
+
+{{ forms.selectField({
+    label: "Default Status Code"|t('seo-redirect-manager'),
+    instructions: "Default HTTP status code assigned to newly created redirect rules."|t('seo-redirect-manager'),
+    name: 'defaultStatusCode',
+    value: settings.defaultStatusCode,
+    options: [
+        { label: '301 Moved Permanently', value: 301 },
+        { label: '302 Found (Temporary)', value: 302 },
+        { label: '307 Temporary Redirect', value: 307 },
+        { label: '308 Permanent Redirect', value: 308 }
+    ],
+    errors: settings.getErrors('defaultStatusCode')
+}) }}
+
+{{ forms.selectField({
+    label: "Default Query String Policy"|t('seo-redirect-manager'),
+    instructions: "How incoming query string parameters are handled by default when redirecting."|t('seo-redirect-manager'),
+    name: 'defaultQueryPolicy',
+    value: settings.defaultQueryPolicy,
+    options: [
+        { label: 'Preserve (Pass through query parameters)', value: 'preserve' },
+        { label: 'Exact (Only match if query matches exactly)', value: 'exact' },
+        { label: 'Ignore (Discard incoming query parameters)', value: 'ignore' }
+    ],
+    errors: settings.getErrors('defaultQueryPolicy')
+}) }}
+
+{{ forms.lightswitchField({
+    label: "Automatic Redirects on Entry URI Changes"|t('seo-redirect-manager'),
+    instructions: "Automatically create 301 redirect rules when published entry slugs or URIs change to preserve SEO rankings."|t('seo-redirect-manager'),
+    name: 'enableAutoEntryRedirects',
+    on: settings.enableAutoEntryRedirects,
+    errors: settings.getErrors('enableAutoEntryRedirects')
+}) }}
+
+<hr>
+
+<h2>{{ "Short Links & Vanity URLs"|t('seo-redirect-manager') }}</h2>
+
+{{ forms.lightswitchField({
+    label: "Enable Short Links"|t('seo-redirect-manager'),
+    instructions: "Enable clean marketing and vanity aliases (e.g. yoursite.com/go/summer-promo)."|t('seo-redirect-manager'),
+    name: 'enableShortLinks',
+    on: settings.enableShortLinks,
+    errors: settings.getErrors('enableShortLinks')
+}) }}
+
+{{ forms.textField({
+    label: "Short Link Path Prefix"|t('seo-redirect-manager'),
+    instructions: "Prefix for vanity links (e.g. 'go' creates URLs like /go/{slug})."|t('seo-redirect-manager'),
+    name: 'shortLinkPrefix',
+    value: settings.shortLinkPrefix,
+    size: 20,
+    errors: settings.getErrors('shortLinkPrefix')
+}) }}
+
+<hr>
+
+<h2>{{ "404 Not Found Monitoring & Retention"|t('seo-redirect-manager') }}</h2>
+
+{{ forms.lightswitchField({
+    label: "Enable 404 Error Tracking"|t('seo-redirect-manager'),
+    instructions: "Log and aggregate missing page hits so you can identify broken links and traffic drop-offs."|t('seo-redirect-manager'),
+    name: 'enableNotFoundMonitoring',
+    on: settings.enableNotFoundMonitoring,
+    errors: settings.getErrors('enableNotFoundMonitoring')
+}) }}
+
+{{ forms.lightswitchField({
+    label: "Strip Sensitive Query Parameters"|t('seo-redirect-manager'),
+    instructions: "Automatically redact sensitive parameters (passwords, auth tokens, session IDs) from logged 404 paths."|t('seo-redirect-manager'),
+    name: 'stripSensitiveQueryParams',
+    on: settings.stripSensitiveQueryParams,
+    errors: settings.getErrors('stripSensitiveQueryParams')
+}) }}
+
+{{ forms.textField({
+    label: "Log Retention Threshold (Days)"|t('seo-redirect-manager'),
+    instructions: "404 log entries older than this number of days will be pruned automatically during maintenance."|t('seo-redirect-manager'),
+    name: 'notFoundRetentionDays',
+    value: settings.notFoundRetentionDays,
+    type: 'number',
+    size: 10,
+    errors: settings.getErrors('notFoundRetentionDays')
+}) }}
+
+{{ forms.textareaField({
+    label: "Ignored 404 URL Patterns"|t('seo-redirect-manager'),
+    instructions: "One pattern per line. Use wildcards (*) to ignore static asset probes and crawler spam (e.g. *.map, *.ico, /admin/*)."|t('seo-redirect-manager'),
+    name: 'ignoredNotFoundPatterns',
+    value: settings.ignoredNotFoundPatterns,
+    rows: 6,
+    errors: settings.getErrors('ignoredNotFoundPatterns')
+}) }}
+
+<hr>
+
+<h2>{{ "Diagnostic & Chain Limits"|t('seo-redirect-manager') }}</h2>
+
+{{ forms.textField({
+    label: "Maximum Chain Traversal Depth"|t('seo-redirect-manager'),
+    instructions: "Maximum redirect hops scanned when analyzing multi-hop chains and infinite loops (default: 5)."|t('seo-redirect-manager'),
+    name: 'maxChainLength',
+    value: settings.maxChainLength,
+    type: 'number',
+    size: 5,
+    errors: settings.getErrors('maxChainLength')
+}) }}

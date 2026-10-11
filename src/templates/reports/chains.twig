@@ -1,0 +1,43 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("abdulkadir\\seoredirectmanager\\web\\assets\\cp\\CpAsset") %}
+
+{% set title = "Redirect Chains"|t('seo-redirect-manager') %}
+{% set selectedSubnavItem = 'reports' %}
+
+{% block content %}
+    <div class="pane">
+        <p class="light" style="margin-bottom: 20px;">
+            {{ "Redirect chains occur when a redirected URL triggers another redirect before reaching its final destination. Eliminating intermediate hops preserves SEO link equity and reduces page latency."|t('seo-redirect-manager') }}
+        </p>
+
+        {% if chains|length %}
+            {% for chain in chains %}
+                <div class="srm-chain-item">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="srm-badge srm-badge-302">{{ "{count} Hops"|t('seo-redirect-manager', { count: chain.length }) }}</span>
+                        
+                        <form method="post" action="{{ actionUrl('seo-redirect-manager/reports/optimize-chain') }}" onsubmit="return confirm('{{ 'Update start redirect to target directly?'|t('seo-redirect-manager') }}')">
+                            {{ csrfInput() }}
+                            <input type="hidden" name="startId" value="{{ chain.start_id }}">
+                            <input type="hidden" name="target" value="{{ chain.target }}">
+                            <button type="submit" class="btn small submit">{{ "Optimize to Direct Route"|t('seo-redirect-manager') }}</button>
+                        </form>
+                    </div>
+
+                    <div class="srm-flow-path">
+                        {% for step in chain.steps %}
+                            <span class="srm-flow-node">{{ step }}</span>
+                            {% if not loop.last %}
+                                <span class="srm-flow-arrow">&rarr;</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="light">{{ "No redirect chains detected! All rules point directly to their final destinations."|t('seo-redirect-manager') }}</p>
+        {% endif %}
+    </div>
+{% endblock %}
