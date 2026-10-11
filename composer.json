@@ -1,6 +1,5 @@
 {
   "name": "abdulkadir/seo-redirect-manager",
-  "version": "5.0.0",
   "description": "Enterprise SEO Redirect Manager for Craft CMS 5. High-performance exact and regex matching, 404 monitoring, automated URI change redirects, CSV import/export, redirect chain and loop detection, and short links.",
   "type": "craft-plugin",
   "keywords": [
