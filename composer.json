@@ -17,16 +17,16 @@
     "craft-cloud"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/abdulkadir/seo-redirect-manager",
+  "homepage": "https://github.com/Abdulkadiragoliya/seo-redirect-manager",
   "support": {
     "email": "abdulkadir.agoliya@gmail.com",
-    "docs": "https://github.com/abdulkadir/seo-redirect-manager#readme",
-    "issues": "https://github.com/abdulkadir/seo-redirect-manager/issues"
+    "docs": "https://github.com/Abdulkadiragoliya/seo-redirect-manager#readme",
+    "issues": "https://github.com/Abdulkadiragoliya/seo-redirect-manager/issues"
   },
   "authors": [
     {
       "name": "Abdulkadir Agoliya",
-      "homepage": "https://github.com/abdulkadir"
+      "homepage": "https://github.com/Abdulkadiragoliya"
     }
   ],
   "require": {
@@ -48,8 +48,8 @@
     "handle": "seo-redirect-manager",
     "developer": "Abdulkadir Agoliya",
     "developerUrl": "https://github.com/abdulkadir",
-    "documentationUrl": "https://github.com/abdulkadir/seo-redirect-manager#readme",
-    "changelogUrl": "https://raw.githubusercontent.com/abdulkadir/seo-redirect-manager/main/CHANGELOG.md",
+    "documentationUrl": "https://github.com/Abdulkadiragoliya/seo-redirect-manager#readme",
+    "changelogUrl": "https://raw.githubusercontent.com/Abdulkadiragoliya/seo-redirect-manager/main/CHANGELOG.md",
     "class": "abdulkadir\\seoredirectmanager\\SeoRedirectManager"
   }
 }
